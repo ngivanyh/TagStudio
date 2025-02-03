@@ -1,4 +1,4 @@
-# Copyright (C) 2024 Travis Abendshien (CyanVoxel).
+# Copyright (C) 2025 Travis Abendshien (CyanVoxel).
 # Licensed under the GPL-3.0 License.
 # Created for TagStudio: https://github.com/CyanVoxel/TagStudio
 
@@ -13,6 +13,7 @@ from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
     QLineEdit,
+    QListView,
     QPushButton,
     QScrollArea,
     QVBoxLayout,
@@ -31,6 +32,7 @@ from src.qt.widgets.tag import (
     get_primary_color,
     get_text_color,
 )
+from src.qt.models.tag_list_model import TagListModel
 
 logger = structlog.get_logger(__name__)
 
@@ -75,15 +77,18 @@ class TagSearchPanel(PanelWidget):
         self.scroll_layout.setContentsMargins(6, 0, 6, 0)
         self.scroll_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-        self.scroll_area = QScrollArea()
-        self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
-        self.scroll_area.setWidgetResizable(True)
-        self.scroll_area.setFrameShadow(QFrame.Shadow.Plain)
-        self.scroll_area.setFrameShape(QFrame.Shape.NoFrame)
-        self.scroll_area.setWidget(self.scroll_contents)
+        # self.scroll_area = QScrollArea()
+        # self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+        # self.scroll_area.setWidgetResizable(True)
+        # self.scroll_area.setFrameShadow(QFrame.Shadow.Plain)
+        # self.scroll_area.setFrameShape(QFrame.Shape.NoFrame)
+        # self.scroll_area.setWidget(self.scroll_contents)
+
+        self.tag_view = QListView()
 
         self.root_layout.addWidget(self.search_field)
-        self.root_layout.addWidget(self.scroll_area)
+        # self.root_layout.addWidget(self.scroll_area)
+        self.root_layout.addWidget(self.tag_view)
 
     def __build_row_item_widget(self, tag: Tag):
         container = QWidget()
@@ -253,14 +258,16 @@ class TagSearchPanel(PanelWidget):
             results_1.sort(key=lambda tag: len(self.lib.tag_display_name(tag.id)))
             results_2.sort(key=lambda tag: self.lib.tag_display_name(tag.id))
             self.first_tag_id = results_1[0].id if len(results_1) > 0 else tag_results[0].id
-            for tag in results_1 + results_2:
-                self.scroll_layout.addWidget(self.__build_row_item_widget(tag))
+            # for tag in results_1 + results_2:
+            # self.scroll_layout.addWidget(self.__build_row_item_widget(tag))
+            model = TagListModel(list(results_1 + results_2)[:50])
+            self.tag_view.setModel(model)
         else:
-            # If query doesnt exist add create button
+            # If query doesn't exist add create button
             self.first_tag_id = None
-            c = self.build_create_tag_button(query)
-            self.scroll_layout.addWidget(c)
-        self.search_field.setFocus()
+            # c = self.build_create_tag_button(query)
+            # self.scroll_layout.addWidget(c)
+            self.tag_view.setModel(TagListModel())
 
     def on_return(self, text: str):
         if text:

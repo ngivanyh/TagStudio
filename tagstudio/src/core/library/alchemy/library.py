@@ -716,7 +716,7 @@ class Library:
         name: str | None,
     ) -> list[Tag]:
         """Return a list of Tag records matching the query."""
-        tag_limit = 100
+        tag_limit = 300
 
         with Session(self.engine) as session:
             query = select(Tag).outerjoin(TagAlias)
