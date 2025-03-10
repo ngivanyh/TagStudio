@@ -30,6 +30,7 @@ dependencies = [
     "vtf2img==0.1.0",
     "toml==0.10.2",
     "pydantic==2.9.2",
+    "wcmatch==10.0",
 ]
 
 [project.optional-dependencies]
